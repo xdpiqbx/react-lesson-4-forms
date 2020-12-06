@@ -1,3 +1,5 @@
+import { Component } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 // import Painting from './components/Painting'
 // import paintingsData from './painting.json';
 
@@ -6,10 +8,11 @@
 // import Panel from './components/Panel';
 // import Dropdown from './components/Dropdown';
 // import ColorPicker from './components/ColorPicker/ColorPicker';
-import { Component } from 'react';
+// import Form from './components/Form/Form'
 import TodoList from './components/TodoList';
 import initialTodos from '../src/todos.json';
-
+import TodoEditor from './components/TodoEditor';
+import Filter from './components/Filter';
 // export default function App(){
 //     return(
 //         <div>
@@ -83,6 +86,7 @@ class App extends Component {
     //   { "id": "id-3", "text": "Пережить Redux", "completed": false }
     // ],
     todos: initialTodos,
+    filter: '',
   };
 
   deleteTodo = todoId => {
@@ -91,20 +95,80 @@ class App extends Component {
     }));
   };
 
-  render() {
-    const { todos } = this.state;
+  formSubmitHandler = data => {
+    console.log(data);
+  };
 
-    const completedTodoCount = todos.reduce(
-      (acc, todo) => (todo.completed ? acc + 1 : acc),
-      0,
+  toggteCompleted = todoId => {
+    this.setState(({ todos }) => ({
+      todos: todos.map(todo =>
+        todo.id === todoId ? { ...todo, completed: !todo.completed } : todo,
+      ),
+    }));
+    // this.setState(prevState => ({
+    //   todos: prevState.todos.map(todo => {
+    //     if (todo.id === todoId) {
+    //       return {
+    //         ...todo,
+    //         completed: !todo.completed,
+    //       };
+    //     }
+    //     return todo;
+    //   }),
+    // }));
+  };
+
+  addTodo = text => {
+    console.log(text);
+    const newTodo = {
+      id: uuidv4(),
+      text,
+      completed: false,
+    };
+
+    this.setState(prevState => ({
+      todos: [newTodo, ...prevState.todos],
+    }));
+  };
+
+  changeFilter = event => {
+    this.setState({
+      filter: event.currentTarget.value,
+    });
+  };
+
+  getVisibleTodos = () => {
+    const { filter, todos } = this.state;
+    const normalizeFilter = filter.toLowerCase();
+    return todos.filter(todo =>
+      todo.text.toLowerCase().includes(normalizeFilter),
     );
+  };
+
+  getCompletedTodoCount = todos => {
+    return todos.reduce((acc, todo) => (todo.completed ? acc + 1 : acc), 0);
+  };
+
+  render() {
+    const { todos, filter } = this.state;
+
+    const completedTodoCount = this.getCompletedTodoCount(todos);
+
+    const visibleTodos = this.getVisibleTodos();
+
     return (
       <div>
+        {/* <Form formSubmitHandler={this.formSubmitHandler} /> */}
         <p>Общее количество туду: {todos.length}</p>
         <p>Общее количество выполненых туду: {completedTodoCount}</p>
         {/* <p>Общее количество выполненых туду: {todos.filter(todo => todo.completed).length}</p> */}
-
-        <TodoList todos={todos} onDeleteTodo={this.deleteTodo} />
+        <TodoEditor onSubmit={this.addTodo} />
+        <Filter value={filter} onChangeFilter={this.changeFilter} />
+        <TodoList
+          todos={visibleTodos}
+          onDeleteTodo={this.deleteTodo}
+          onToggleCompleted={this.toggteCompleted}
+        />
         {/* <ColorPicker options={colorPickerOptions} /> */}
         {/* <Dropdown /> */}
         {/* <Panel title="Last News">

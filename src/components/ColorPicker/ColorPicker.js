@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import './ColorPicker.css';
+import classNames from 'classnames';
+import './ColorPicker.scss';
 
 // const styles = {
 //     option: {
@@ -16,11 +17,19 @@ class ColorPicker extends Component {
   };
 
   makeOptionClassName = index => {
-    const optionClasses = ['ColorPicker__option'];
-    if (this.state.activeOptionIdx === index) {
-      optionClasses.push('ColorPicker__option--active');
-    }
-    return optionClasses.join(' ');
+    // В classNames передаю обязательные классы и объект с необязательными
+    // classNames('ColorPicker__option', {'ColorPicker__option--active': false})
+    // return classNames('ColorPicker__option', {'ColorPicker__option--active': this.state.activeOptionIdx === index})
+    return classNames({
+      ColorPicker__option: true,
+      'ColorPicker__option--active': this.state.activeOptionIdx === index,
+    });
+
+    // const optionClasses = ['ColorPicker__option'];
+    // if (this.state.activeOptionIdx === index) {
+    //   optionClasses.push('ColorPicker__option--active');
+    // }
+    // return optionClasses.join(' ');
   };
 
   setActiveIdx = index => {
